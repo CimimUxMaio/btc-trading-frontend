@@ -2,6 +2,8 @@ import { Component } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card"
+import config from "../config.json";
+import Axios from "axios";
 
 
 class SignInForm extends Component {
@@ -11,9 +13,9 @@ class SignInForm extends Component {
     }
 
 
-    handleChange(field, event) {
-        let fields = this.state.fields;
-        fields[field] = event.target.value;        
+    handleChange(fieldName, event) {
+        let fields = {...this.state.fields};
+        fields[fieldName] = event.target.value;        
         this.setState({fields});
     }
 
@@ -31,11 +33,16 @@ class SignInForm extends Component {
         return isValid
     }
 
-    onSubmit = (event) => {
+    handleOnSubmit = (event) => {
         event.preventDefault();
 
         if(this.handleValidation()) {
-            alert("User created!");
+            Axios.post(config.api_host + "/users", { "username": this.state.fields["email"], "password": this.state.fields["password1"] })
+                .then(response => {
+                    alert("User created successfuly!");
+                }).catch( error => {
+                    alert(error);
+                })
         } else {
             const errors = this.state.errors;
             alert(errors)
@@ -45,10 +52,10 @@ class SignInForm extends Component {
     render() {
         return (
             <Card className="bg-light text-white" style={{width: "45%", margin: "auto", marginTop: "2%"}}>
-                <Form style={{width: "80%", margin: "3% 0% 3% 10%"}} onSubmit={this.onSubmit}>
+                <Form style={{width: "80%", margin: "3% 0% 3% 10%"}} onSubmit={this.handleOnSubmit}>
                     <Form.Group controlId="formBasicEmail">
                         <Form.Label className="text-dark">Email address</Form.Label>
-                        <Form.Control type="email" placeholder="Enter email" onChange={this.handleChange.bind(this, "email")} value={this.state.fields["email"]} required/>
+                        <Form.Control type="email" placeholder="Enter email" onChange={this.handleChange.bind(this, "email")} required/>
                         <Form.Text className="text-muted">
                             We'll never share your email with anyone else.
                         </Form.Text>
@@ -56,12 +63,12 @@ class SignInForm extends Component {
 
                     <Form.Group controlId="formBasicPassword">
                         <Form.Label className="text-dark">Password</Form.Label>
-                        <Form.Control type="password" placeholder="Password" onChange={this.handleChange.bind(this, "password1")} value={this.state.fields["password1"]} required/>
+                        <Form.Control type="password" placeholder="Password" onChange={this.handleChange.bind(this, "password1")} required/>
                     </Form.Group>
 
-                    <Form.Group controlId="formBasicPassword">
+                    <Form.Group controlId="formBasicPassword2">
                         <Form.Label className="text-dark">Repeat password</Form.Label>
-                        <Form.Control type="password" placeholder="Password" onChange={this.handleChange.bind(this, "password2")} value={this.state.fields["password2"]} required/>
+                        <Form.Control type="password" placeholder="Password" onChange={this.handleChange.bind(this, "password2")} required/>
                     </Form.Group>
 
                     <Button variant="secondary" type="submit">

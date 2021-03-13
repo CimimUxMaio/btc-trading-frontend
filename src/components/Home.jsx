@@ -1,12 +1,29 @@
-import SignInForm from "./SignInForm"
+import React, { Component } from "react";
+import Axios from "axios";
+import config from "../config.json";
+import Card from "react-bootstrap/Card";
 
-const Home = () => {
-    return ( 
-        <div>
-            <h1 style={{marginTop: "5%"}}>Welcome</h1> 
-            <SignInForm/>
-        </div>
-    );
+
+class Home extends Component {
+    userBots() {
+        let bots = [];
+        Axios.get(config.api_host + "/bots", { params: { token: this.props.getToken() }}).then(response => {
+            bots = response.data;
+        }).catch(error => {
+            error.response? alert(error.data) : alert(error);
+        });
+
+        return bots;
+    }
+
+    render() {
+        return (
+            <React.Fragment>
+                <h1>Bots</h1>
+                {this.userBots().map(bot => <Card><Card.Title>{bot.name}</Card.Title></Card>)}
+            </React.Fragment>
+        )
+    }
 }
 
 export default Home;

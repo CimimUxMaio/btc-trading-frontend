@@ -54,6 +54,7 @@ class App extends Component {
                 path="/"
                 isLoggedIn={this.tokenExists}
                 getToken={this.getToken}
+                deleteToken={this.deleteToken}
                 componentType={Home}/>
 
               <LoggedInRoute 

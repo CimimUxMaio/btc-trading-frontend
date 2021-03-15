@@ -3,8 +3,9 @@ import './App.css';
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home"
-import LoggedInRoute from "./components/LoggedInRoute";
 import SignIn from "./components/SignIn";
+import ConditionalRoute from "./components/ConditionalRoute";
+import BotForm from "./components/BotForm";
 
 class App extends Component {
   state = {}
@@ -49,19 +50,18 @@ class App extends Component {
                 <h1>TEST ROUTE</h1>
               </Route>
 
-              <LoggedInRoute
-                exact
-                path="/"
-                isLoggedIn={this.tokenExists}
-                getToken={this.getToken}
-                deleteToken={this.deleteToken}
-                componentType={Home}/>
+              <ConditionalRoute exact path="/" checkCondition={this.tokenExists}>
+                <Home getToken={this.getToken} deleteToken={this.deleteToken}/>
+              </ConditionalRoute>
 
-              <LoggedInRoute 
-                path="/bots/:bot_id" 
-                componentType={(<h1>Bot</h1>).type} 
-                isLoggedIn={this.tokenExists}
-                getToken={this.getToken}/>
+              <ConditionalRoute path="/bots/new" checkCondition={this.tokenExists}>
+                <h1>Create new bot</h1>
+                <BotForm getToken={this.getToken}/>
+              </ConditionalRoute>
+
+              <ConditionalRoute path="/bots/:bot_id" checkCondition={this.tokenExists}>
+                <h1>Bot</h1>
+              </ConditionalRoute>
             </Switch>
           </div>
         </div>

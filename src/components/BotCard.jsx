@@ -1,14 +1,31 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
+import { camelToSentence } from "../helpers";
 
 
 const BotCard = (props) => {
+    const { id, strategy } = props.botInfo;
+    const {inversion, upperBound, lowerBound, startingPrice } = strategy.configuration;
+    const status = strategy.status;
+
+    const importantAttributes = {
+        inversion: inversion,
+        upperBound: upperBound,
+        lowerBound: lowerBound,
+        startingPrice: startingPrice,
+        ...status
+    }
+
+    const configComponents = Object.keys(importantAttributes).map((key, index) => {
+        return <p key={index} style={{textAlign:"left"}}><b>{camelToSentence(key)}:</b> {importantAttributes[key]}</p>
+    });
+
     return (
-        <Card style={{ margin: "1% 1% 1% 1%" }} bg="light">
-            <Card.Header>{props.botInfo.id}</Card.Header>
-            <div style={{ margin: "3% 3% 3% 3%" }}>
-                <Card.Text>{JSON.stringify(props.botInfo.strategy.configuration)}</Card.Text>
-            </div>
+        <Card bg="light">
+            <Card.Header>{id}</Card.Header>
+            <Card.Body>
+                { configComponents }
+            </Card.Body>
         </Card>
     );
 }

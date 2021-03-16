@@ -22,8 +22,8 @@ const CustomNavbar = (props) => {
         </Nav>
         <Conditional 
           condition={() => !props.isLoggedIn()}
-          primary={LoginForm}
-          secondary={LogoutButton}
+          primary={<LoginForm/>}
+          secondary={<LogoutButton/>}
           {...props}/>
       </Navbar>
     ); 

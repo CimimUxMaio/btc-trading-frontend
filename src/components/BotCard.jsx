@@ -1,6 +1,8 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
+import Button from "react-bootstrap/Button";
 import { camelToSentence } from "../helpers";
+import { withRouter } from "react-router";
 
 
 const BotCard = (props) => {
@@ -25,9 +27,10 @@ const BotCard = (props) => {
             <Card.Header>{id}</Card.Header>
             <Card.Body>
                 { configComponents }
+                <Button variant="outline-secondary" onClick={() => props.history.push("/bots/"+id)}>Details</Button>
             </Card.Body>
         </Card>
     );
 }
  
-export default BotCard;
+export default withRouter(BotCard);

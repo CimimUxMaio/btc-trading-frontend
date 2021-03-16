@@ -53,7 +53,11 @@ class BotForm extends Component {
             this.setState({currentPrice});
         }
 
-        get(config.api_host + "/price", null, onSuccess.bind(this));
+        function onError(_error) {
+            this.props.deleteToken();
+        }
+
+        get(config.api_host + "/price", null, onSuccess.bind(this), onError.bind(this));
     }
 
     currentConfig() {

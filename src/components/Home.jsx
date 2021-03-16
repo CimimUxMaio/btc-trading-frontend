@@ -6,6 +6,9 @@ import CardDeck from "react-bootstrap/CardDeck";
 import Button from "react-bootstrap/Button";
 import { useHistory } from "react-router-dom";
 import { get } from "../helpers";
+import Conditional from "./utils/Conditional";
+import Spinner from "./Spinner";
+import Lazy from "./utils/Lazy";
 
 
 function CreateBotButton(props) {
@@ -15,12 +18,12 @@ function CreateBotButton(props) {
         history.push("/bots/new");
     }
 
-    return <Button onClick={handleOnClick}>New bot</Button>;
+    return <Button variant="secondary" onClick={handleOnClick}>New bot</Button>;
 }
 
 class Home extends Component {
     state = {
-        bots: []
+        bots: null
     }
 
     getBots() {
@@ -32,6 +35,11 @@ class Home extends Component {
 
     componentDidMount() {
         this.getBots();
+        this.interval = setInterval(() => { this.getBots() }, 10 * 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     botCardRows() {
@@ -47,12 +55,11 @@ class Home extends Component {
     render() {
         return (
             <React.Fragment>
-                <span>
-                    <h1>Bots</h1>
-                    <CreateBotButton/>
-                </span>
+                <h1>Bots</h1>
                 <div style={{marginTop: "5%"}}>
-                    {this.botCardRows()}
+                    <CreateBotButton/>
+                    <br/>
+                    <Conditional condition={() => this.state.bots} primary={<Lazy component={this.botCardRows.bind(this)}/>} secondary={<Spinner/>}/>
                 </div>
             </React.Fragment>
         );

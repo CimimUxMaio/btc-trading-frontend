@@ -5,7 +5,8 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home"
 import SignIn from "./components/SignIn";
 import ConditionalRoute from "./components/ConditionalRoute";
-import BotForm from "./components/BotForm";
+import BotCreation from "./components/BotCreation";
+import BotDetails from "./components/BotDetails";
 
 class App extends Component {
   state = {}
@@ -55,12 +56,11 @@ class App extends Component {
               </ConditionalRoute>
 
               <ConditionalRoute path="/bots/new" checkCondition={this.tokenExists}>
-                <h1>Create new bot</h1>
-                <BotForm getToken={this.getToken}/>
+                <BotCreation getToken={this.getToken} deleteToken={this.deleteToken}/>
               </ConditionalRoute>
 
-              <ConditionalRoute path="/bots/:bot_id" checkCondition={this.tokenExists}>
-                <h1>Bot</h1>
+              <ConditionalRoute path="/bots/:botId" checkCondition={this.tokenExists}>
+                <BotDetails getToken={this.getToken} deleteToken={this.deleteToken}/>
               </ConditionalRoute>
             </Switch>
           </div>

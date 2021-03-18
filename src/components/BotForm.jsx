@@ -1,148 +1,141 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import InputGroup from "react-bootstrap/InputGroup";
-import { get, post, camelToSentence } from "../helpers";
+import { get, post, camelToSentence, errorMessage } from "../helpers";
 import config from "../config.json";
 import Button from "react-bootstrap/Button";
-import { withRouter } from "react-router";
+import { useHistory } from "react-router";
 
 
-class BotForm extends Component {
-    state = {
-        inversion: 0,
-        range: 50,
-        levels: 5,
-        startingPrice: 0,
-        currentPrice: 0
-    }
+const BotForm = (props) => {
+    const [inversion, setInversion] = useState(0);
+    const [range, setRange] = useState(50);
+    const [levels, setLevels] = useState(15);
+    const [startingPrice, setStartingPrice] = useState("");
+    const [currentPrice, setCurrentPrice] = useState(0);
+    const [currentConfigComponents, setCurrentConfigComponents] = useState([]);
+    const history = useHistory();
+    
+    useEffect(() => {
+        const calculateConfig = () => {
+            const trueStartingPrice = (startingPrice.length > 0) ? parseFloat(startingPrice) : currentPrice;
+            const upperBound = trueStartingPrice * (1 + range/100);
+            const lowerBound = trueStartingPrice * (1 - range/100);
+            const levelHeight = (upperBound - trueStartingPrice) / levels;
+            const tao = Math.pow(1 - 0.001, 2);
+            const bestProfit = (((lowerBound + levelHeight) * tao / lowerBound) - 1) * 100;
+            const worstProfit = ((upperBound * tao / (upperBound - levelHeight)) - 1) * 100;
+    
+            return { upperBound: upperBound, lowerBound: lowerBound, levelHeight: levelHeight, bestProfit: bestProfit, worstProfit: worstProfit };
+        }
 
-    handleChange(fieldName, event) {
-        let newState = {...this.state};
-        newState[fieldName] = event.target.value;        
-        this.setState(newState);
-    }
+        const makeComponents = (config) => {
+            return Object.keys(config).map((key, index) => {
+                return (
+                    <p key={index} style={{textAlign:"left", color: "gray"}}><b>{camelToSentence(key)}:</b> {config[key]}</p>
+                );
+            })
+        }
 
-    handleOnSubmit = (event) => {
+        setCurrentConfigComponents(makeComponents(calculateConfig()));
+    }, [range, levels, startingPrice, currentPrice])
+
+
+    const handleSubmit = (event) => {
         event.preventDefault();
-        const { inversion, range, levels, startingPrice } = this.state;
         const data = {
             inversion: inversion,
             range: range,
             levels: levels
         };
 
-        if (this.startingPriceIsSet()) {
+        if (startingPrice.length > 0) {
             data["startingPrice"] = startingPrice;
         }
 
         const onSuccess = (_responseData) => {
-            this.props.history.push("/");
+            history.push("/"); 
         }
 
-        post(config.api_host + "/bots", { token: this.props.getToken() }, data, onSuccess);
-    }
-
-    startingPriceIsSet() {
-        return this.state.startingPrice.length > 0;
-    }
-
-    requestCurrentPrice() {
-        function onSuccess(responseData) {
-            const currentPrice = parseFloat(responseData.price);
-            this.setState({currentPrice});
+        const onError = (error) => {
+            console.log(errorMessage(error));
+            props.deleteToken();
         }
 
-        function onError(_error) {
-            this.props.deleteToken();
+        post(config.api_host + "/bots", { token: props.getToken() }, data, onSuccess, onError);
+    }
+
+
+    useEffect(() => {
+        const requestCurrentPrice = () => {
+            const onSuccess = (responseData) => {
+                const currentPrice = parseFloat(responseData.price);
+                setCurrentPrice(currentPrice);
+            }
+
+            const onError = (error) => {
+                console.log(errorMessage(error));
+                props.deleteToken();
+            }
+
+            get(`${config.api_host}/price`, null, onSuccess, onError);
         }
 
-        get(config.api_host + "/price", null, onSuccess.bind(this), onError.bind(this));
-    }
+        requestCurrentPrice();
+        const interval = setInterval(() => {requestCurrentPrice()}, 10 * 1000);
+        return () => { clearInterval(interval)};
+    }, [props]);
 
-    currentConfig() {
-        const { startingPrice: inputStartingPrice, currentPrice, range, levels } = this.state;
-        const startingPrice = (inputStartingPrice.length > 0) ? parseFloat(inputStartingPrice) : currentPrice;
-        const upperBound = startingPrice * (1 + range/100);
-        const lowerBound = startingPrice * (1 - range/100);
-        const levelHeight = (upperBound - startingPrice) / levels;
-        const tao = Math.pow(1 - 0.001, 2);
-        const bestProfit = (((lowerBound + levelHeight) * tao / lowerBound) - 1) * 100;
-        const worstProfit = ((upperBound * tao / (upperBound - levelHeight)) - 1) * 100;
+    return (
+        <Card className="bg-light text-white" style={{width: "45%", margin: "auto", marginTop: "2%"}}>
+            <Card.Header>
+                { currentConfigComponents }
+            </Card.Header>
+            <Card.Body>
+                <Form onSubmit={handleSubmit}>
+                    <Form.Group>
+                        <Form.Label className="text-dark">Amount to invest</Form.Label>
+                        <InputGroup>
+                            <InputGroup.Prepend>
+                                <InputGroup.Text>USDT</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <Form.Control required type="number" onChange={(event) => setInversion(event.target.value)} placeholder={inversion}/>
+                        </InputGroup>
+                    </Form.Group>
 
-        return { upperBound: upperBound, lowerBound: lowerBound, levelHeight: levelHeight, bestProfit: bestProfit, worstProfit: worstProfit };
-    }
+                    <Form.Group>
+                        <Form.Label className="text-dark">Range</Form.Label>
+                        <Form.Control type="range" min="1" max="100" step="0.25" onChange={(event) => setRange(event.target.value)}/>
+                        <Form.Text className="text-dark">{range}</Form.Text>
+                        <Form.Text className="text-muted">% between starting price and it's lower and upper boundaries.</Form.Text>
+                    </Form.Group>
 
-    currentConfigurationComponents() {
-        const currentConfig = this.currentConfig();
-        return Object.keys(currentConfig).map((key, index) => {
-            return (
-                <p key={index} style={{textAlign:"left", color: "gray"}}><b>{camelToSentence(key)}:</b> {currentConfig[key]}</p>
-            );
-        })
-    }
+                    <Form.Group>
+                        <Form.Label className="text-dark">Levels</Form.Label>
+                        <Form.Control type="range" min="2" max="30" step="1" onChange={(event) => setLevels(event.target.value)}/>
+                        <Form.Text className="text-dark">{levels}</Form.Text>
+                        <Form.Text className="text-muted">Levels between the starting level and it's boundaries.</Form.Text>
+                    </Form.Group>
 
-    componentDidMount() {
-        this.requestCurrentPrice();
-        this.interval = setInterval(() => { this.requestCurrentPrice() }, 20 * 1000);
-    }
+                    <Form.Group>
+                        <Form.Label className="text-dark">Starting price</Form.Label>
+                        <InputGroup>
+                            <InputGroup.Prepend>
+                                <InputGroup.Text>USDT</InputGroup.Text>
+                            </InputGroup.Prepend>
+                            <Form.Control type="number" placeholder={currentPrice} onChange={(event) => setStartingPrice(event.target.value)}/>
+                        </InputGroup>
+                        <Form.Text className="text-muted">(Optional) defaults to the current market price.</Form.Text>
+                    </Form.Group>
 
-    componentWillUnmount() {
-        clearInterval(this.interval);
-    }
-
-    render() {
-        return (
-            <Card className="bg-light text-white" style={{width: "45%", margin: "auto", marginTop: "2%"}}>
-                <Card.Header>
-                    { this.currentConfigurationComponents() }
-                </Card.Header>
-                <Card.Body>
-                    <Form onSubmit={this.handleOnSubmit}>
-                        <Form.Group>
-                            <Form.Label className="text-dark">Amount to invest</Form.Label>
-                            <InputGroup>
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text>USDT</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <Form.Control required type="number" onChange={this.handleChange.bind(this, "inversion")} placeholder={this.state.inversion}/>
-                            </InputGroup>
-                        </Form.Group>
-
-                        <Form.Group>
-                            <Form.Label className="text-dark">Range</Form.Label>
-                            <Form.Control type="range" min="1" max="100" step="0.25" onChange={this.handleChange.bind(this, "range")}/>
-                            <Form.Text className="text-dark">{this.state.range}</Form.Text>
-                            <Form.Text className="text-muted">% between starting price and it's lower and upper boundaries.</Form.Text>
-                        </Form.Group>
-
-                        <Form.Group>
-                            <Form.Label className="text-dark">Levels</Form.Label>
-                            <Form.Control type="range" min="2" max="30" step="1" onChange={this.handleChange.bind(this, "levels")}/>
-                            <Form.Text className="text-dark">{this.state.levels}</Form.Text>
-                            <Form.Text className="text-muted">Levels between the starting level and it's boundaries.</Form.Text>
-                        </Form.Group>
-
-                        <Form.Group>
-                            <Form.Label className="text-dark">Starting price</Form.Label>
-                            <InputGroup>
-                                <InputGroup.Prepend>
-                                    <InputGroup.Text>USDT</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                <Form.Control type="number" placeholder={this.state.currentPrice} onChange={this.handleChange.bind(this, "startingPrice")}/>
-                            </InputGroup>
-                            <Form.Text className="text-muted">(Optional) defaults to the current market price.</Form.Text>
-                        </Form.Group>
-
-                        <Button variant="secondary" type="submit">
-                            Create
-                        </Button>
-                    </Form>
-                </Card.Body>
-            </Card>
-        );
-    }
+                    <Button variant="secondary" type="submit">
+                        Create
+                    </Button>
+                </Form>
+            </Card.Body>
+        </Card>
+    );
 }
-
-
-export default withRouter(BotForm);
+ 
+export default BotForm;

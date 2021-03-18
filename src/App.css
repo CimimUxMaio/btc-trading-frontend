@@ -36,3 +36,72 @@
     transform: rotate(360deg);
   }
 }
+
+
+.notification-container {
+  position: fixed;
+  top: 7%;
+  right: 10px;
+  width: 300px;
+  z-index: 1;
+}
+
+.notification {
+  box-shadow: 0 0 10px rgba(0,0,0, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  animation: SlideLeft 0.4s;
+  animation-fill-mode: forwards;
+  width: 300px;
+}
+
+.notification.success {
+  background-color: #86fa88;
+}
+
+.notification.danger {
+  background-color: rgb(255, 160, 160);
+}
+
+@keyframes SlideLeft {
+  0% {
+      margin-left: 120%;
+  }
+
+  100% {
+      margin-left: 0;
+  }
+}
+
+@keyframes SlideRight {
+  0% {
+      margin-left: 0;
+  }
+
+  100% {
+      margin-left: 120%;
+  }
+}
+
+.notification.exit {
+  animation: SlideRight 0.4s;
+  animation-fill-mode: forwards;
+}
+
+.notification p {
+  margin: 0;
+  padding: 10px;
+}
+
+.notification .bar {
+  height: 10px;
+}
+
+.notification.success .bar {
+  background-color: #5ad85c;
+}
+
+.notification.danger .bar {
+  background-color: rgb(255, 50, 50);
+}

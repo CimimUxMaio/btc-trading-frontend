@@ -1,50 +1,38 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { get } from "../helpers";
 import config from "../config.json";
 import Conditional from "./utils/Conditional";
-import { withRouter } from "react-router";
 import Spinner from "./Spinner";
+import BotInfo from "./BotInfo";
+import { useParams } from "react-router";
+import { errorMessage } from "../helpers";
 
 
-function BotInfo(props) {
-    return <p>{JSON.stringify(props.botInfo)}</p>;
-}
+const BotDetails = (props) => {
+    const [botInfo, setBotInfo] = useState(null);
+    const params = useParams();
+    const botId = params.botId;
 
-class BotDetails extends Component {
-    state = {
-        botInfo: null
-    }
-
-    getBotInfo() {
-        const botId = this.props.match.params.botId;
-        const { getToken, deleteToken } = this.props;
-        const onSuccess = (responseData) => {
-            this.setState({ botInfo: responseData });
-        }
-        const onError = (_error) => {
-            deleteToken();
+    useEffect(() => {
+        const getBotInfo = () => {
+            const { getToken, deleteToken } = props;
+            get(`${config.api_host}/bots/${botId}`, { token: getToken() }, (responseData) => { setBotInfo(responseData) }, (error) => { deleteToken(); console.log(errorMessage(error)); });
         }
 
-        get(config.api_host+"/bots/"+botId, { token: getToken() }, onSuccess, onError);
-    }
+        getBotInfo();
+        const interval = setInterval(() => {
+            getBotInfo();
+        }, 10 * 1000)
 
-    componentDidMount() {
-        this.getBotInfo();
-        this.interval = setInterval(() => { this.getBotInfo() }, 10 * 1000);
-    }
+        return () => { clearInterval(interval) };
+    }, [props, botId]);
 
-    componentWillUnmount() {
-        clearInterval(this.interval);
-    }
-
-    render() { 
-        return (
-            <React.Fragment>
-                <h1>Bot</h1>
-                <Conditional condition={() => this.state.botInfo} primary={<BotInfo botInfo={this.state.botInfo}/>} secondary={<Spinner/>}/>
-            </React.Fragment>
-        );
-    }
+    return (
+        <React.Fragment>
+            <h1>Bot {botId}</h1>
+            <Conditional condition={() => botInfo} primary={<BotInfo botInfo={botInfo}/>} secondary={<Spinner/>}/>
+        </React.Fragment>
+    );
 }
  
-export default withRouter(BotDetails);
+export default BotDetails;

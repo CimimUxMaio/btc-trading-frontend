@@ -9,8 +9,6 @@ import BotCreation from "./components/BotCreation";
 import BotDetails from "./components/BotDetails";
 
 class App extends Component {
-  state = {}
-
   forceRender = () => {
     this.setState({});
   }
@@ -47,12 +45,8 @@ class App extends Component {
                 <SignIn/>
               </Route>
 
-              <Route path="/test">
-                <h1>TEST ROUTE</h1>
-              </Route>
-
               <ConditionalRoute exact path="/" checkCondition={this.tokenExists}>
-                <Home getToken={this.getToken} deleteToken={this.deleteToken}/>
+                <Home getToken={this.getToken} deleteToken={this.deleteToken} notificationRaiser={this.props.notificationRaiser}/>
               </ConditionalRoute>
 
               <ConditionalRoute path="/bots/new" checkCondition={this.tokenExists}>

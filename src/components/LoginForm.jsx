@@ -1,55 +1,44 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
-import Axios from "axios";
 import config from "../config.json";
-import { Redirect, withRouter } from "react-router";
+import { useHistory } from "react-router";
+import { post, raiseErrorNotification, useNotificationRaiser } from "../helpers";
 
 
-class LoginForm extends Component {
-    state = {
-        fields: {}
-    }
+const LoginForm = (props) => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const history = useHistory();
+    const notificationRaiser = useNotificationRaiser();
 
-    handleSubmit = (event) => { 
+    const handleSubmit = (event) => {
         event.preventDefault();
 
-        let axiosConfig = {
-            headers: {
-                "Authorization": "Basic " + btoa(this.state.fields["email"] + ":" + this.state.fields["password"]),
-            }
+        let headers = {
+            "Authorization": "Basic " + btoa(`${email}:${password}`),
         }
 
-        Axios.post(config.api_host+"/token", null, axiosConfig).then(response => {
-            this.props.setToken(response.data["token"]);
-            this.props.history.push("/");
-        }).catch(error => {
-            if(!error.response) {
-                alert(error);
-            } else {
-                alert(error.response.data);
-            }
-        })
+        const onSuccess = (responseData) => {
+            props.setToken(responseData["token"]);
+            history.push("/");
+        }
+
+        const onError = (error) => {
+            raiseErrorNotification(notificationRaiser, error);
+        }
+
+        post(`${config.api_host}/token`, null, null, onSuccess, onError, headers);
     }
 
-    handleOnChange(fieldName, event) {
-        let fields = {...this.state.fields};
-        fields[fieldName] = event.target.value;
-        this.setState({fields});
-    }
-
-    render() { 
-        if(this.props.loggedIn) return <Redirect to="/"/>;
-
-        return (
-            <Form inline onSubmit={this.handleSubmit}>
-                <FormControl type="email" placeholder="Email" className="mr-sm-2" required onChange={this.handleOnChange.bind(this, "email")}/>
-                <FormControl type="password" placeholder="Password" className="mr-sm-2" required onChange={this.handleOnChange.bind(this, "password")}/>
-                <Button variant="outline-secondary" type="submit">Login</Button>
-            </Form>
-        );
-    }
+    return (
+        <Form inline onSubmit={handleSubmit}>
+            <FormControl type="email" placeholder="Email" className="mr-sm-2" required onChange={(event) => { setEmail(event.target.value) }}/>
+            <FormControl type="password" placeholder="Password" className="mr-sm-2" required onChange={(event) => { setPassword(event.target.value) }}/>
+            <Button variant="outline-secondary" type="submit">Login</Button>
+        </Form>
+    );
 }
  
-export default withRouter(LoginForm);
+export default LoginForm;

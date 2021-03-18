@@ -17,9 +17,7 @@ const CustomNavbar = (props) => {
   return (
       <Navbar bg="dark" variant="dark">
         <Navbar.Brand href="/">HOME</Navbar.Brand>
-        <Nav className="mr-auto">
-          <Nav.Link href="/test">TEST</Nav.Link>
-        </Nav>
+        <Nav className="mr-auto"/>
         <Conditional 
           condition={() => !props.isLoggedIn()}
           primary={<LoginForm/>}

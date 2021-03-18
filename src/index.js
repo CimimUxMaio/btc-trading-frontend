@@ -3,10 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import NotificationManager from './components/notifications/NotificationManager';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <NotificationManager>
+      <App />
+    </NotificationManager>
   </React.StrictMode>,
   document.getElementById('root')
 );

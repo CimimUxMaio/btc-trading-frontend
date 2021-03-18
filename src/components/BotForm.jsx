@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import InputGroup from "react-bootstrap/InputGroup";
-import { get, post, camelToSentence, errorMessage } from "../helpers";
+import { get, post, camelToSentence, useNotificationContext, errorNotificationAddAction, notificationAddAction } from "../helpers";
 import config from "../config.json";
 import Button from "react-bootstrap/Button";
 import { useHistory } from "react-router";
+import { NotificationType } from "./notifications/Notification";
 
 
 const BotForm = (props) => {
@@ -15,6 +16,7 @@ const BotForm = (props) => {
     const [startingPrice, setStartingPrice] = useState("");
     const [currentPrice, setCurrentPrice] = useState(0);
     const [currentConfigComponents, setCurrentConfigComponents] = useState([]);
+    const notificationDispatch = useNotificationContext();
     const history = useHistory();
     
     useEffect(() => {
@@ -56,10 +58,11 @@ const BotForm = (props) => {
 
         const onSuccess = (_responseData) => {
             history.push("/"); 
+            notificationDispatch(notificationAddAction(NotificationType.Success, "Bot created successfuly!"));
         }
 
         const onError = (error) => {
-            console.log(errorMessage(error));
+            notificationDispatch(errorNotificationAddAction(error));
             props.deleteToken();
         }
 
@@ -75,8 +78,8 @@ const BotForm = (props) => {
             }
 
             const onError = (error) => {
-                console.log(errorMessage(error));
                 props.deleteToken();
+                notificationDispatch(errorNotificationAddAction(error));
             }
 
             get(`${config.api_host}/price`, null, onSuccess, onError);
@@ -84,8 +87,8 @@ const BotForm = (props) => {
 
         requestCurrentPrice();
         const interval = setInterval(() => {requestCurrentPrice()}, 10 * 1000);
-        return () => { clearInterval(interval)};
-    }, [props]);
+        return () => { clearInterval(interval) };
+    }, [props, notificationDispatch]);
 
     return (
         <Card className="bg-light text-white" style={{width: "45%", margin: "auto", marginTop: "2%"}}>

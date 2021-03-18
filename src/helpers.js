@@ -46,22 +46,17 @@ export function camelToSentence(camelString) {
     return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
-export function useNotificationRaiser() {
-    const dispatch = useContext(NotificationContext);
-
-    return (
-        notificationProps => {
-            dispatch({
-                type: NotificationAction.Add,
-                payload: {
-                    id: v4(),
-                    ...notificationProps
-                }
-            });
-        }
-    );
+export function useNotificationContext() {
+    return useContext(NotificationContext);
 }
 
-export function raiseErrorNotification(notificationRaiser, error) {
-    notificationRaiser({ type: NotificationType.Danger, message: errorMessage(error) });
+export function notificationAddAction(notificationType, message) {
+    return {
+        type: NotificationAction.Add,
+        payload: { id: v4(), type: notificationType, message: message }
+    }
+}
+
+export function errorNotificationAddAction(error) {
+    return notificationAddAction(NotificationType.Danger, errorMessage(error));
 }

@@ -4,14 +4,14 @@ import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
 import config from "../config.json";
 import { useHistory } from "react-router";
-import { post, raiseErrorNotification, useNotificationRaiser } from "../helpers";
+import { post, useNotificationContext, errorNotificationAddAction } from "../helpers";
 
 
 const LoginForm = (props) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const history = useHistory();
-    const notificationRaiser = useNotificationRaiser();
+    const notificationDispatch = useNotificationContext();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -26,7 +26,7 @@ const LoginForm = (props) => {
         }
 
         const onError = (error) => {
-            raiseErrorNotification(notificationRaiser, error);
+            notificationDispatch(errorNotificationAddAction(error));
         }
 
         post(`${config.api_host}/token`, null, null, onSuccess, onError, headers);

@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { get } from "../helpers";
+import { errorNotificationAddAction, get, notificationAddAction, useNotificationContext } from "../helpers";
 import config from "../config.json";
 import Conditional from "./utils/Conditional";
 import Spinner from "./Spinner";
 import BotInfo from "./BotInfo";
 import { useParams } from "react-router";
-import { errorMessage } from "../helpers";
 
 
 const BotDetails = (props) => {
     const [botInfo, setBotInfo] = useState(null);
     const params = useParams();
     const botId = params.botId;
+    const notificationDispatch = useNotificationContext();
 
     useEffect(() => {
         const getBotInfo = () => {
             const { getToken, deleteToken } = props;
-            get(`${config.api_host}/bots/${botId}`, { token: getToken() }, (responseData) => { setBotInfo(responseData) }, (error) => { deleteToken(); console.log(errorMessage(error)); });
+            get(`${config.api_host}/bots/${botId}`, { token: getToken() }, (responseData) => { setBotInfo(responseData) }, (error) => { deleteToken(); notificationAddAction(errorNotificationAddAction(error)) });
         }
 
         getBotInfo();
@@ -25,7 +25,7 @@ const BotDetails = (props) => {
         }, 10 * 1000)
 
         return () => { clearInterval(interval) };
-    }, [props, botId]);
+    }, [props, botId, notificationDispatch]);
 
     return (
         <React.Fragment>

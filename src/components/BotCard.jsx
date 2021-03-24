@@ -1,33 +1,24 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import { camelToSentence } from "../helpers";
 import { withRouter } from "react-router";
 
 
 const BotCard = (props) => {
     const { id, strategy } = props.botInfo;
-    const {inversion, upperBound, lowerBound, startingPrice } = strategy.configuration;
-    const status = strategy.status;
+    const { stage, status } = strategy;
+    const profit = status.profit;
 
-    const importantAttributes = {
-        inversion: inversion,
-        upperBound: upperBound,
-        lowerBound: lowerBound,
-        startingPrice: startingPrice,
-        ...status
-    }
-
-    const configComponents = Object.keys(importantAttributes).map((key, index) => {
-        return <p key={index} style={{textAlign:"left"}}><b>{camelToSentence(key)}:</b> {importantAttributes[key]}</p>
-    });
+    const bgColor = (stage === "RUNNING")? "success" : (stage === "TERMINATED") ? "danger" : "info";
 
     return (
-        <Card bg="light">
+        <Card bg={bgColor}>
             <Card.Header>{id}</Card.Header>
             <Card.Body>
-                { configComponents }
-                <Button variant="outline-secondary" onClick={() => props.history.push("/bots/"+id)}>Details</Button>
+                <Card.Text>
+                    Profit: { profit }
+                </Card.Text>
+                <Button variant="outline-dark" onClick={() => props.history.push("/bots/"+id)}>Details</Button>
             </Card.Body>
         </Card>
     );

@@ -11,7 +11,7 @@ import Spinner from "./Spinner";
 import Lazy from "./utils/Lazy";
 
 
-function CreateBotButton(props) {
+function CreateBotButton(_props) {
     const history = useHistory();
 
     const handleOnClick = () => {

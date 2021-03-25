@@ -41,6 +41,14 @@ export function post(url, params={}, data={}, onSuccess=function(){}, onError=fu
     return request(url, "POST", params, onSuccess, onError, data, headers);
 }
 
+export function delete_(url, params={}, onSuccess=function(){}, onError=function(){}, headers={}) {
+    return request(url, "DELETE", params, onSuccess, onError, {}, headers);
+}
+
+export function put(url, params={}, data={}, onSuccess=function(){}, onError=function(){}, headers={}) {
+    return request(url, "PUT", params, onSuccess, onError, data, headers);
+}
+
 export function camelToSentence(camelString) {
     var result = camelString.replace( /([A-Z])/g, " $1" );
     return result.charAt(0).toUpperCase() + result.slice(1);

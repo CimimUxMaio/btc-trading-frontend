@@ -22,7 +22,7 @@ function CreateBotButton(_props) {
 }
 
 const Home = (props) => {
-    const [bots, setBots] = useState([]);
+    const [bots, setBots] = useState(null);
     const notificationDispatch = useNotificationContext();
 
     useEffect(() => {
@@ -49,7 +49,7 @@ const Home = (props) => {
     const botCardRows = () => {
         return _.chunk(bots, 3).map((botChunk, deckIndex) => {
             const cards = botChunk.map((bot, index) => {
-                return <BotCard key={index} botInfo={bot}/>;
+                return <BotCard key={index} botInfo={bot} getToken={props.getToken}/>;
             });
 
             return <CardDeck style={{margin: "1% 1% 1% 1%"}} key={deckIndex}>{cards}</CardDeck>;
@@ -62,7 +62,7 @@ const Home = (props) => {
         <div style={{marginTop: "5%"}}>
             <CreateBotButton/>
             <br/>
-            <Conditional condition={() => bots.length > 0} primary={<Lazy component={botCardRows}/>} secondary={<Spinner/>}/>
+            <Conditional condition={() => bots !== null} primary={<Lazy component={botCardRows}/>} secondary={<Spinner/>}/>
         </div>
     </React.Fragment> 
     );

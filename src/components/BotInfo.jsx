@@ -39,7 +39,7 @@ function History({ logs }) {
                 <td>{log.time}</td>
                 <td>{log.event}</td>
                 <td>{log.marketPrice}</td>
-                <td style={{color: profitGainColor}}>{profitGainSign + " " + log.profitGain}</td>
+                <td style={{color: profitGainColor}}>{profitGainSign + " " + Math.abs(log.profitGain)}</td>
             </tr>
         );
     });

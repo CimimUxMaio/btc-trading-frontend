@@ -1,7 +1,10 @@
 import React from "react";
 import Card from "react-bootstrap/Card";
 import Table from "react-bootstrap/Table";
-import { camelToSentence } from "../helpers";
+import { camelToSentence, put, errorNotificationAddAction, notificationAddAction, useNotificationContext } from "../helpers";
+import {Button} from "react-bootstrap";
+import {NotificationType} from "./notifications/Notification";
+import config from "../config.json";
 
 
 function InlineValueLabel({label, value}) {
@@ -77,11 +80,21 @@ function Configuration({ object }) {
 
 
 function BotInfo(props) {
-    const { strategy } = props.botInfo;
+    const { id, name, strategy } = props.botInfo;
     const { configuration, status, logs } = strategy;
+    const notificationDispatch = useNotificationContext();
+
+    const stopBot = () => {
+        const onSuccess = (_requestData) => { notificationDispatch(notificationAddAction(NotificationType.Success, "Bot stopped")) };
+        const onError = (error) => { notificationDispatch(errorNotificationAddAction(error)) };
+
+        put(`${config.api_host}/bots/${id}`, { token: props.getToken() }, {}, onSuccess, onError);    
+    }
 
     return (
         <React.Fragment>
+            <h1>{name}</h1>
+            <Button variant="danger" onClick={stopBot}>Stop</Button>
             <Status {...status}/>
             <History logs={logs}/>
             <Configuration object={configuration}/>

@@ -14,6 +14,7 @@ const BotForm = (props) => {
     const [range, setRange] = useState(50);
     const [levels, setLevels] = useState(15);
     const [startingPrice, setStartingPrice] = useState("");
+    const [botName, setBotName] = useState("");
     const [currentPrice, setCurrentPrice] = useState(0);
     const [currentConfigComponents, setCurrentConfigComponents] = useState([]);
     const notificationDispatch = useNotificationContext();
@@ -56,6 +57,10 @@ const BotForm = (props) => {
             data["startingPrice"] = startingPrice;
         }
 
+        if(botName.length > 0) {
+            data["name"] = botName;
+        }
+
         const onSuccess = (_responseData) => {
             history.push("/"); 
             notificationDispatch(notificationAddAction(NotificationType.Success, "Bot created successfuly!"));
@@ -71,10 +76,14 @@ const BotForm = (props) => {
 
 
     useEffect(() => {
+        var isMounted = true;
+
         const requestCurrentPrice = () => {
             const onSuccess = (responseData) => {
-                const currentPrice = parseFloat(responseData.price);
-                setCurrentPrice(currentPrice);
+               if(isMounted) {
+                   const currentPrice = parseFloat(responseData.price);
+                   setCurrentPrice(currentPrice);
+               }
             }
 
             const onError = (error) => {
@@ -87,7 +96,7 @@ const BotForm = (props) => {
 
         requestCurrentPrice();
         const interval = setInterval(() => {requestCurrentPrice()}, 10 * 1000);
-        return () => { clearInterval(interval) };
+        return () => { clearInterval(interval); isMounted = false; };
     }, [props, notificationDispatch]);
 
     return (
@@ -130,6 +139,12 @@ const BotForm = (props) => {
                             <Form.Control type="number" placeholder={currentPrice} onChange={(event) => setStartingPrice(event.target.value)}/>
                         </InputGroup>
                         <Form.Text className="text-muted">(Optional) defaults to the current market price.</Form.Text>
+                    </Form.Group>
+
+                    <Form.Group>
+                        <Form.Label className="text-dark">Bot name</Form.Label>
+                        <Form.Control type="text" placeholder="Bot name" onChange={(event) => setBotName(event.target.value)}/>
+                        <Form.Text className="text-muted">(Optional) defaults to a generated id</Form.Text>
                     </Form.Group>
 
                     <Button variant="secondary" type="submit">

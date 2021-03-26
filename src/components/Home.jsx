@@ -26,15 +26,22 @@ const Home = (props) => {
     const notificationDispatch = useNotificationContext();
 
     useEffect(() => {
+        var isMounted = true;
         const getBots = () => {
             const params = { token: props.getToken() }
+
+            const onSucces = (bots) => {
+                if(isMounted) {
+                    setBots(bots);
+                }
+            }
     
             const onError = (error) => {
                 props.deleteToken();
                 notificationDispatch(errorNotificationAddAction(error));
             }
 
-            get(`${config.api_host}/bots`, params, (bots) => { setBots(bots); }, onError);
+            get(`${config.api_host}/bots`, params, onSucces, onError);
         }
 
         getBots();
@@ -42,7 +49,7 @@ const Home = (props) => {
             getBots();
         }, 10 * 1000);
 
-        return () => { clearInterval(interval); };
+        return () => { clearInterval(interval); isMounted = false; };
     }, [props, notificationDispatch]);
 
 
@@ -64,7 +71,7 @@ const Home = (props) => {
             <br/>
             <Conditional condition={() => bots !== null} primary={<Lazy component={botCardRows}/>} secondary={<Spinner/>}/>
         </div>
-    </React.Fragment> 
+   </React.Fragment> 
     );
 }
  

@@ -7,7 +7,7 @@ import config from "../config.json";
 import {NotificationType} from "./notifications/Notification.jsx";
 
 const BotCard = (props) => {
-    const { id, strategy } = props.botInfo;
+    const { id, name, strategy } = props.botInfo;
     const { stage, status } = strategy;
     const profit = status.profit;
     const notificationDispatch = useNotificationContext();
@@ -29,7 +29,7 @@ const BotCard = (props) => {
     return (
         <Card bg={bgColor}>
             <Card.Header>
-                {id}
+                {name}
                 <Button onClick={deleteBot} className="close">X</Button>
             </Card.Header>
             <Card.Body>

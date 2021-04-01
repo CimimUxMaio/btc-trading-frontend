@@ -38,7 +38,7 @@ const Home = (props) => {
                 notificationDispatch(errorNotificationAddAction(error));
             }
 
-            //get(`${config.api_host}/bots`, {}, onSucces, onError);
+            get(`${config.api_host}/bots`, {}, onSucces, onError);
         }
 
         getBots();

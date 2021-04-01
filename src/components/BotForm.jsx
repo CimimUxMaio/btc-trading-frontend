@@ -70,7 +70,7 @@ const BotForm = (props) => {
             notificationDispatch(errorNotificationAddAction(error));
         }
 
-        //post(config.api_host + "/bots", {}, data, onSuccess, onError);
+        post(config.api_host + "/bots", {}, data, onSuccess, onError);
     }
 
 
@@ -89,7 +89,7 @@ const BotForm = (props) => {
                 notificationDispatch(errorNotificationAddAction(error));
             }
 
-            //get(`${config.api_host}/price`, null, onSuccess, onError);
+            get(`${config.api_host}/price`, null, onSuccess, onError);
         }
 
         requestCurrentPrice();

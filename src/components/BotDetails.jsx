@@ -14,8 +14,7 @@ const BotDetails = (props) => {
 
     useEffect(() => {
         const getBotInfo = () => {
-            const { getToken, deleteToken } = props;
-            get(`${config.api_host}/bots/${botId}`, { token: getToken() }, (responseData) => { setBotInfo(responseData) }, (error) => { deleteToken(); notificationAddAction(errorNotificationAddAction(error)) });
+            get(`${config.api_host}/bots/${botId}`, {}, (responseData) => { setBotInfo(responseData) }, (error) => { notificationAddAction(errorNotificationAddAction(error)) });
         }
 
         getBotInfo();

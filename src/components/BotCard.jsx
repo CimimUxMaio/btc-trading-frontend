@@ -23,7 +23,7 @@ const BotCard = (props) => {
     }
 
     const deleteBot = () => {
-        delete_(`${config.api_host}/bots/${id}`, { token: props.getToken() }, onSuccess, onError); 
+        delete_(`${config.api_host}/bots/${id}`, {}, onSuccess, onError); 
     }
 
     return (

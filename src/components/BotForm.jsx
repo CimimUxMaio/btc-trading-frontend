@@ -68,10 +68,9 @@ const BotForm = (props) => {
 
         const onError = (error) => {
             notificationDispatch(errorNotificationAddAction(error));
-            props.deleteToken();
         }
 
-        post(config.api_host + "/bots", { token: props.getToken() }, data, onSuccess, onError);
+        //post(config.api_host + "/bots", {}, data, onSuccess, onError);
     }
 
 
@@ -87,11 +86,10 @@ const BotForm = (props) => {
             }
 
             const onError = (error) => {
-                props.deleteToken();
                 notificationDispatch(errorNotificationAddAction(error));
             }
 
-            get(`${config.api_host}/price`, null, onSuccess, onError);
+            //get(`${config.api_host}/price`, null, onSuccess, onError);
         }
 
         requestCurrentPrice();

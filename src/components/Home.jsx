@@ -28,8 +28,6 @@ const Home = (props) => {
     useEffect(() => {
         var isMounted = true;
         const getBots = () => {
-            const params = { token: props.getToken() }
-
             const onSucces = (bots) => {
                 if(isMounted) {
                     setBots(bots);
@@ -37,11 +35,10 @@ const Home = (props) => {
             }
     
             const onError = (error) => {
-                props.deleteToken();
                 notificationDispatch(errorNotificationAddAction(error));
             }
 
-            get(`${config.api_host}/bots`, params, onSucces, onError);
+            //get(`${config.api_host}/bots`, {}, onSucces, onError);
         }
 
         getBots();
@@ -56,7 +53,7 @@ const Home = (props) => {
     const botCardRows = () => {
         return _.chunk(bots, 3).map((botChunk, deckIndex) => {
             const cards = botChunk.map((bot, index) => {
-                return <BotCard key={index} botInfo={bot} getToken={props.getToken}/>;
+                return <BotCard key={index} botInfo={bot} />;
             });
 
             return <CardDeck style={{margin: "1% 1% 1% 1%"}} key={deckIndex}>{cards}</CardDeck>;
@@ -65,13 +62,13 @@ const Home = (props) => {
 
     return (
         <React.Fragment>
-        <h1>Bots</h1>
-        <div style={{marginTop: "5%"}}>
-            <CreateBotButton/>
-            <br/>
-            <Conditional condition={() => bots !== null} primary={<Lazy component={botCardRows}/>} secondary={<Spinner/>}/>
-        </div>
-   </React.Fragment> 
+            <h1>Bots</h1>
+            <div style={{marginTop: "5%"}}>
+                <CreateBotButton/>
+                <br/>
+                <Conditional condition={() => bots !== null} primary={<Lazy component={botCardRows}/>} secondary={<Spinner/>}/>
+            </div>
+        </React.Fragment> 
     );
 }
  

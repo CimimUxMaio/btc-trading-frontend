@@ -1,0 +1,4 @@
+{
+    "backend_server_main_path": "../btc-trading-backend/app.py",
+    "backend_python_path": "../btc-trading-backend/venv/bin/python"
+}

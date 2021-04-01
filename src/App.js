@@ -1,67 +1,34 @@
-import React, { Component } from "react";
+import React from "react";
 import './App.css';
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { HashRouter, Route, Switch } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home"
-import SignIn from "./components/SignIn";
-import ConditionalRoute from "./components/ConditionalRoute";
 import BotCreation from "./components/BotCreation";
 import BotDetails from "./components/BotDetails";
 
-class App extends Component {
-  forceRender = () => {
-    this.setState({});
-  }
-
-  setToken = (token) => {
-    localStorage.setItem("token", token);
-    this.forceRender();
-  }
-
-  deleteToken = () => {
-    localStorage.removeItem("token");
-    this.forceRender();
-  }
-
-  getToken = () => {
-    return localStorage.getItem("token");
-  }
-
-  tokenExists = () => {
-    return !!this.getToken();
-  }
-
-  render() {
+const App = (props) => {
     return (
-      <BrowserRouter>
-        <div className="App">
-          <Navbar 
-            isLoggedIn={this.tokenExists} 
-            setToken={this.setToken}
-            deleteToken={this.deleteToken}/>
-          <div className="content">
-            <Switch>
-              <Route path="/sign-in">
-                <SignIn/>
-              </Route>
+        <HashRouter>
+            <div className="App">
+                <Navbar/>
+                <div className="content">
+                    <Switch>
+                        <Route exact path="/">
+                            <Home notificationRaiser={props.notificationRaiser}/>
+                        </Route>
 
-              <ConditionalRoute exact path="/" checkCondition={this.tokenExists}>
-                <Home getToken={this.getToken} deleteToken={this.deleteToken} notificationRaiser={this.props.notificationRaiser}/>
-              </ConditionalRoute>
+                        <Route path="/bots/new">
+                            <BotCreation />
+                        </Route>
 
-              <ConditionalRoute path="/bots/new" checkCondition={this.tokenExists}>
-                <BotCreation getToken={this.getToken} deleteToken={this.deleteToken}/>
-              </ConditionalRoute>
-
-              <ConditionalRoute path="/bots/:botId" checkCondition={this.tokenExists}>
-                <BotDetails getToken={this.getToken} deleteToken={this.deleteToken}/>
-              </ConditionalRoute>
-            </Switch>
-          </div>
-        </div>
-      </BrowserRouter>
+                        <Route path="/bots/:botId">
+                            <BotDetails />
+                        </Route>
+                    </Switch>
+                </div>
+            </div>
+        </HashRouter>
     );
-  }
 }
-
+        
 export default App;

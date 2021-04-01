@@ -88,7 +88,7 @@ function BotInfo(props) {
         const onSuccess = (_requestData) => { notificationDispatch(notificationAddAction(NotificationType.Success, "Bot stopped")) };
         const onError = (error) => { notificationDispatch(errorNotificationAddAction(error)) };
 
-        put(`${config.api_host}/bots/${id}`, { token: props.getToken() }, {}, onSuccess, onError);    
+        put(`${config.api_host}/bots/${id}`, {}, {}, onSuccess, onError);    
     }
 
     return (

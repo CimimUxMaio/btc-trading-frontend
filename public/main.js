@@ -11,16 +11,14 @@ let pyshell = null;
 function runBackendServer() {
     const options = {
         mode: "text",
-        pythonPath: config.backend_python_path
+        pythonPath: config.backend_python_path,
+        pythonOptions: ['-u']
     }
 
-    pyshell = new PythonShell(config.backend_server_main_path, options);
-
-    pyshell.on("pythonError", err => {
-        throw err;
-    });
-
-    pyshell.on("error", err => { throw err; });
+   // pyshell = PythonShell.run(config.backend_server_main_path, options, (err, result) => {
+   //     if (err) throw err;
+   //     console.log('result: ', result.toString());
+   // });
 }
 
 
@@ -50,7 +48,7 @@ app.on("closed", () => {
 });
 
 app.on("window-all-closed", () => {
-    pyshell.kill();
+   // pyshell.kill();
 
     if (process.platform !== 'darwin') {
         app.quit();

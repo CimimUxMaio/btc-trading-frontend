@@ -4,6 +4,10 @@ const url = require("url");
 const { PythonShell } = require("python-shell");
 const config = require("../config.json");
 
+function productionMode() {
+    ENV_DEBUG = process.env.DEBUG || "false";
+    return ENV_DEBUG.toLowerCase() !== "true";
+}
 
 let mainWindow = null;
 let pyshell = null;
@@ -15,10 +19,13 @@ function runBackendServer() {
         pythonOptions: ['-u']
     }
 
-   // pyshell = PythonShell.run(config.backend_server_main_path, options, (err, result) => {
-   //     if (err) throw err;
-   //     console.log('result: ', result.toString());
-   // });
+    if (productionMode()) {
+        pyshell = PythonShell.run(config.backend_server_main_path, options, (err, result) => {
+            if (err) throw err;
+            console.log('result: ', result.toString());
+        });
+    }
+   
 }
 
 
@@ -48,7 +55,7 @@ app.on("closed", () => {
 });
 
 app.on("window-all-closed", () => {
-   // pyshell.kill();
+    if(productionMode()) pyshell.kill();
 
     if (process.platform !== 'darwin') {
         app.quit();

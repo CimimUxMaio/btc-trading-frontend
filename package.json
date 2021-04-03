@@ -22,6 +22,7 @@
     "web-vitals": "^1.1.0"
   },
   "scripts": {
+    "start-debug": "DEBUG=true npm start",
     "build": "npm run build-react",
     "start": "electron .",
     "build-and-start": "npm run build && npm run start",

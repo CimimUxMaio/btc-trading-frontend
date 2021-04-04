@@ -68,3 +68,4 @@ export function notificationAddAction(notificationType, message) {
 export function errorNotificationAddAction(error) {
     return notificationAddAction(NotificationType.Danger, errorMessage(error));
 }
+
